@@ -1,0 +1,115 @@
+﻿@model examenInsertEF1.ViewModel.EmpleadoVM
+
+@{
+    ViewData["Title"] = "Gestión de Empleados";
+}
+
+<div class="container mt-4">
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-@TempData["Tipo"] alert-dismissible fade show shadow-sm" role="alert">
+            @TempData["Mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm">
+            <strong>Error:</strong> @ViewData["Error"]
+        </div>
+    }
+    @if (TempData["AlertMessage"] != null)
+    {
+        <div class="alert alert-@TempData["AlertIcon"]">
+            @TempData["AlertMessage"]
+        </div>
+    }
+
+    <div class="card shadow-sm mb-5" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Registrar Nuevo Empleado</h2>
+        </div>
+        <div class="card-body bg-light">
+            <form asp-action="Guardar" method="post">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre del Empleado</label>
+                    <input asp-for="EmpleadoModelRef.NombreEmpleado" class="form-control" placeholder="Ej. Juan Pérez" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Departamento</label>
+                    <select asp-for="EmpleadoModelRef.IdDepartamento" class="form-select"
+                            asp-items="@(new SelectList(Model.ListaDepartamentos, "IdDepartamento", "NombreDepartamento"))" required>
+                        <option value="">-- Selecciona un departamento --</option>
+                    </select>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success shadow-sm">
+                        <i class="bi bi-plus-circle me-1"></i> Guardar Empleado
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">Filtrar por Departamento:</label>
+            @* El onchange recarga la página enviando el idDep a la URL *@
+            <select class="form-select shadow-sm" id="cboFiltroDep"
+                    onchange="location.href='?idDep=' + this.value">
+                <option value="0">Ver todos</option>
+                @foreach (var dep in Model.ListaDepartamentos)
+                {
+                    <option value="@dep.IdDepartamento" selected="@(dep.IdDepartamento == ViewBag.IdSeleccionado)">
+                        @dep.NombreDepartamento
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 text-start">
+            <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </div>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover table-striped border">
+            <thead class="table-info">
+                <tr>
+                    <th>IdEmpleado</th>
+                    <th>Nombre Empleado</th>
+                    <th>Departamento</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ListaEmpleados == null || !Model.ListaEmpleados.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted fst-italic py-4">
+                            No se encontraron empleados con los criterios seleccionados.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var emp in Model.ListaEmpleados)
+                    {
+                        <tr>
+                            <td class="fw-bold">@emp.IdEmpleado</td>
+                            <td>@emp.NombreEmpleado</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @emp.IdDepartamentoNavigation?.NombreDepartamento
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
